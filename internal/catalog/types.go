@@ -15,7 +15,9 @@ type Catalog struct {
 	SchemaVersion int `json:"schema_version"`
 	// SnapshotDate is the day the metrics were captured (YYYY-MM-DD).
 	SnapshotDate string `json:"snapshot_date"`
-	Models       []ModelInfo `json:"models"`
+	// Attribution credits the upstream data sources.
+	Attribution string      `json:"attribution,omitempty"`
+	Models      []ModelInfo `json:"models"`
 }
 
 // ModelInfo describes one routable model with the metrics the ranking
