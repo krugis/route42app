@@ -1,0 +1,43 @@
+# ---- Internal docs (never publish) ----
+DESIGN.md
+TODO.md
+
+# ---- Secrets / data ----
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+keystore*
+*.pem
+*.key
+.env
+.env.*
+config.local.yaml
+
+# ---- Build artifacts ----
+/route42
+/route42.exe
+/bin/
+/dist/
+/build/
+*.exe
+*.test
+*.out
+coverage.*
+
+# ---- Logs / temp ----
+*.log
+logs/
+tmp/
+tmp*/
+.scratch/
+
+# ---- Node / frontend (phase 2 dashboard) ----
+node_modules/
+web/dist/
+
+# ---- IDE / OS ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
