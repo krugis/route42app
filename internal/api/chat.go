@@ -33,13 +33,21 @@ func (s *Server) handleChatCompletions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Honor explicit model pin: a specific model bypasses routing. "auto"
-	// or absent routes.
+	// or absent routes (unless prefs.default_model pins a default).
 	pinned := req.Model != "" && req.Model != "auto"
 
 	prefs, err := s.store.GetPrefs()
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "load preferences: "+err.Error(), "server_error")
 		return
+	}
+
+	// If the request didn't pin a model but preferences define a default,
+	// pin to that default. This lets a deployment force a specific model
+	// without per-request configuration.
+	if !pinned && prefs.DefaultModel != "" {
+		req.Model = prefs.DefaultModel
+		pinned = true
 	}
 
 	ctx := r.Context()
