@@ -176,11 +176,12 @@ func (s *Server) localCandidates(ctx context.Context) ([]catalog.ModelInfo, erro
 
 // Handler returns the HTTP handler serving all Route42 routes. Routes use
 // Go 1.22 ServeMux method+path patterns; /v1/* are aliases of /api/* for
-// OpenAI-client compatibility.
+// OpenAI-client compatibility. The mux is wrapped with panic recovery and
+// structured per-request logging, then the optional auth layer.
 func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
 	s.registerRoutes(mux)
-	return s.withAuth(mux)
+	return s.withRecover(s.withLogging(s.withAuth(mux)))
 }
 
 // withAuth applies the optional static-token auth to /api and /v1 routes

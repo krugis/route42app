@@ -98,8 +98,8 @@ type fakeProvider struct {
 }
 
 type fakeReq struct {
-	Model    string `json:"model"`
-	Stream   bool   `json:"stream"`
+	Model  string `json:"model"`
+	Stream bool   `json:"stream"`
 }
 
 func newFakeProvider() *fakeProvider {
@@ -144,8 +144,8 @@ func (fp *fakeProvider) handle(w http.ResponseWriter, r *http.Request) {
 		"created": 1,
 		"model":   req.Model,
 		"choices": []map[string]any{{
-			"index": 0,
-			"message": map[string]any{"role": "assistant", "content": "Hello from " + req.Model},
+			"index":         0,
+			"message":       map[string]any{"role": "assistant", "content": "Hello from " + req.Model},
 			"finish_reason": "stop",
 		}},
 		"usage": map[string]any{"prompt_tokens": 5, "completion_tokens": 4},
