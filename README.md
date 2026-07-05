@@ -37,6 +37,8 @@ Gateways like LiteLLM or Bifrost unify provider APIs and load-balance — but th
 | `heuristic` (default) | free, <1ms | Deterministic signal scoring: code blocks, requirement density, reasoning cues, question fan-out, context depth. Fully explainable — per-signal scores are returned with every decision. |
 | `llm` (optional) | free, ~50–200ms | Uses a small local model via Ollama (e.g. `qwen2.5:0.5b`) to classify category and complexity. Smarter on ambiguous prompts, still 100% local and private. Falls back to `heuristic` if Ollama is unavailable. |
 
+A third mode — analyzers trained on real routing outcomes — ships with [Route42 Pro](https://route42.app).
+
 ### Providers & models
 - **Cloud providers:** OpenAI, Anthropic, Google Gemini, Mistral, Groq, DeepSeek, Alibaba, Moonshot, NVIDIA, OpenRouter.
 - **Local:** automatic Ollama model discovery; local models score as $0 cost with no network latency.
@@ -48,11 +50,38 @@ Gateways like LiteLLM or Bifrost unify provider APIs and load-balance — but th
 - **Interaction log & stats** — every request records the chosen model, rationale, cost, and latency; browse usage and spend locally.
 - **Single binary** — Go backend, SQLite storage, no external services.
 
+## Install
+
+**Download a binary** from the [latest release](https://github.com/krugis/route42app/releases/latest) — a single static file for Windows, macOS, and Linux, no dependencies:
+
+```bash
+# Linux (amd64; see the release page for arm64 and macOS)
+curl -LO https://github.com/krugis/route42app/releases/download/v0.1.0/route42_0.1.0_linux_amd64.tar.gz
+tar -xzf route42_0.1.0_linux_amd64.tar.gz
+sudo mv route42 /usr/local/bin/
+```
+
+On Windows, download the `.zip`, unpack, and put `route42.exe` somewhere on your `PATH`. Verify downloads against the release's `SHA256SUMS`.
+
+**Or install with Go 1.22+:**
+
+```bash
+go install github.com/krugis/route42app/cmd/route42@latest
+```
+
+**Or build from source:**
+
+```bash
+git clone https://github.com/krugis/route42app
+cd route42app
+go build -o route42 ./cmd/route42
+```
+
 ## Quick start
 
 ```bash
 # 1. Run
-./route42 serve            # starts on localhost:4242
+route42 serve              # starts on localhost:4242
 
 # 2. Add a provider key (or none — Ollama-only works fine)
 curl -X POST localhost:4242/api/keys -d '{"provider":"openai","api_key":"sk-..."}'
@@ -216,7 +245,7 @@ Optional auth: set `server.api_token` in config and send `Authorization: Bearer 
 
 ## Route42 Pro
 
-The hosted/desktop [Route42 Pro](https://route42.app) builds on this engine with ML-trained complexity & category models, behavioral learning (routing adapts to your history), personal speed statistics measured from your own traffic, on-demand catalog updates, and a polished desktop app. Community Edition is and stays fully functional on its own.
+Community Edition is complete and stays that way. If you want the routing brain to get smarter over time — ML-trained analyzers, routing that learns from your own traffic, always-fresh model data, and a desktop app — that's [Route42 Pro](https://route42.app).
 
 ## License
 
