@@ -141,7 +141,9 @@ func TestHugeInputStaysFast(t *testing.T) {
 	res := analyze(t, user(huge))
 	elapsed := time.Since(start)
 	// Generous CI-safe bound; the benchmark below tracks the real budget.
-	if elapsed > 100*time.Millisecond {
+	// Skipped under -race: instrumentation overhead makes wall-clock
+	// assertions meaningless on shared runners.
+	if !raceEnabled && elapsed > 100*time.Millisecond {
 		t.Errorf("100KB analysis took %v, want well under 100ms", elapsed)
 	}
 	if res.Complexity <= 0.3 {
