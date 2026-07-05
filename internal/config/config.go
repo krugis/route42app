@@ -34,7 +34,7 @@ type Server struct {
 // Analyzer selects and configures the prompt analyzer.
 type Analyzer struct {
 	// Mode is "heuristic" (default) or "llm".
-	Mode string `yaml:"mode"`
+	Mode string      `yaml:"mode"`
 	LLM  AnalyzerLLM `yaml:"llm"`
 }
 
