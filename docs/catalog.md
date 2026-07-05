@@ -58,12 +58,14 @@ overriding the embedded snapshot.
 
 The embedded catalog combines two public data sources:
 
-- **Capability and pricing data** — derived from LiteLLM's
-  `litellm_tool_capability_map.json` (MIT-licensed): callable API ids,
-  context windows, capability flags, and prices.
-- **Quality and speed metrics** — Route42 composite scores derived from
-  public benchmark data. `quality_score` is a composite
-  (`0.75 * intelligence + 0.25 * coding`, rounded).
+- **Capability and pricing data** — derived from LiteLLM (MIT-licensed):
+  callable API ids, context windows, capability flags, and prices.
+- **Quality and speed metrics** — Route42-derived indices computed from
+  publicly available [Artificial Analysis](https://artificialanalysis.ai)
+  benchmark results. `quality_score` is a composite
+  (`0.75 * intelligence + 0.25 * coding`, rounded to an integer);
+  `output_tokens_per_second` and `time_to_first_token_ms` are coarsened
+  speed tiers (nearest 5 tok/s and 50 ms), not raw measurements.
 
 The `attribution` field on the catalog records this. Community PRs that
 update metrics must keep the attribution accurate.

@@ -22,15 +22,16 @@ func NewHeuristic() *HeuristicAnalyzer { return &HeuristicAnalyzer{} }
 
 // Complexity signal weights. They sum to 1.0; complexity is their weighted
 // sum. Values are calibrated against the reference analyzer on an internal
-// evaluation set (see docs/analyzer.md for the methodology).
+// evaluation set, bounded so no single signal dominates (see
+// docs/analyzer.md for the methodology).
 const (
-	weightLength       = 0.20 // log-scaled prompt size
-	weightRequirements = 0.20 // numbered items + constraint verbs
-	weightReasoning    = 0.20 // multi-step reasoning cues
-	weightCode         = 0.15 // code presence and size
-	weightQuestions    = 0.10 // question fan-out
+	weightLength       = 0.35 // log-scaled prompt size
+	weightRequirements = 0.15 // numbered items + constraint verbs
+	weightReasoning    = 0.14 // multi-step reasoning cues
+	weightCode         = 0.09 // code presence and size
+	weightQuestions    = 0.08 // question fan-out
 	weightDepth        = 0.10 // conversation depth
-	weightVocabulary   = 0.05 // vocabulary rarity
+	weightVocabulary   = 0.09 // vocabulary rarity
 )
 
 // Saturation constants: signal raw counts are divided by these and capped

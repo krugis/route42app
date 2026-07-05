@@ -75,17 +75,18 @@ with its **post-weight** contribution, so the score is fully auditable.
 
 | # | Signal | Weight | Computation |
 |---|---|---|---|
-| 1 | `complexity.length` | 0.20 | `min(1, log10(est_tokens)/log10(4000))`, est_tokens = chars/4 |
-| 2 | `complexity.requirements` | 0.20 | count of numbered-list items + must/ensure/consider/handle/support, saturating at 8 |
-| 3 | `complexity.reasoning` | 0.20 | step by step / design / architect / optimize / explain why / trade-off, saturating at 5 |
-| 4 | `complexity.code` | 0.15 | 0 if none; 0.5 small snippet; 1.0 for ≥30-line blocks or multiple blocks |
-| 5 | `complexity.questions` | 0.10 | `min(1, (question_marks + multipart_conjunctions) / 4)` |
+| 1 | `complexity.length` | 0.35 | `min(1, log10(est_tokens)/log10(4000))`, est_tokens = chars/4 |
+| 2 | `complexity.requirements` | 0.15 | count of numbered-list items + must/ensure/consider/handle/support, saturating at 8 |
+| 3 | `complexity.reasoning` | 0.14 | step by step / design / architect / optimize / explain why / trade-off, saturating at 5 |
+| 4 | `complexity.code` | 0.09 | 0 if none; 0.5 small snippet; 1.0 for ≥30-line blocks or multiple blocks |
+| 5 | `complexity.questions` | 0.08 | `min(1, (question_marks + multipart_conjunctions) / 4)` |
 | 6 | `complexity.depth` | 0.10 | `min(1, prior_turns / 12)` |
-| 7 | `complexity.vocabulary` | 0.05 | avg word length + technical-term ratio, normalized |
+| 7 | `complexity.vocabulary` | 0.09 | avg word length + technical-term ratio, normalized |
 
 The weights sum to 1.0. The seven numbers and saturation constants are the
 only tunable parameters; they are calibrated against a reference analyzer
-on an internal evaluation set.
+on an internal evaluation set, with per-weight bounds so no single signal
+dominates the score.
 
 ## How complexity drives routing
 

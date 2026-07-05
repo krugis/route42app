@@ -1,7 +1,7 @@
 {
  "schema_version": 1,
- "snapshot_date": "2026-07-04",
- "attribution": "Capability and pricing data derived from LiteLLM (MIT). Quality and speed metrics are Route42 composite scores derived from public benchmark data.",
+ "snapshot_date": "2026-07-05",
+ "attribution": "Capability and pricing data derived from LiteLLM (MIT). Quality scores are Route42 composite indices and speed values are coarsened Route42 speed tiers, both derived from publicly available Artificial Analysis benchmark results (artificialanalysis.ai).",
  "models": [
   {
    "id": "claude-3-5-haiku-20241022",
@@ -13,8 +13,8 @@
    "context_window": 200000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 47.7,
-   "time_to_first_token_ms": 678
+   "output_tokens_per_second": 50,
+   "time_to_first_token_ms": 700
   },
   {
    "id": "claude-3-7-sonnet-20250219",
@@ -37,8 +37,8 @@
    "context_window": 200000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 105.7,
-   "time_to_first_token_ms": 414
+   "output_tokens_per_second": 105,
+   "time_to_first_token_ms": 400
   },
   {
    "id": "claude-3-opus-20240229",
@@ -94,8 +94,8 @@
    "context_window": 200000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 68.6,
-   "time_to_first_token_ms": 1964
+   "output_tokens_per_second": 70,
+   "time_to_first_token_ms": 1950
   },
   {
    "id": "claude-opus-4-5-20251101",
@@ -107,8 +107,8 @@
    "context_window": 200000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 68.6,
-   "time_to_first_token_ms": 1964
+   "output_tokens_per_second": 70,
+   "time_to_first_token_ms": 1950
   },
   {
    "id": "claude-opus-4-5-thinking",
@@ -120,8 +120,8 @@
    "context_window": 200000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 41.7,
-   "time_to_first_token_ms": 1090
+   "output_tokens_per_second": 40,
+   "time_to_first_token_ms": 1100
   },
   {
    "id": "claude-sonnet-4-20250514",
@@ -184,8 +184,8 @@
    "output_price_per_mtok": 1.85,
    "context_window": 163840,
    "supports_tools": true,
-   "output_tokens_per_second": 30.8,
-   "time_to_first_token_ms": 1336
+   "output_tokens_per_second": 30,
+   "time_to_first_token_ms": 1350
   },
   {
    "id": "gemini-1-0-pro",
@@ -283,8 +283,8 @@
    "context_window": 1048576,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 237.9,
-   "time_to_first_token_ms": 383
+   "output_tokens_per_second": 240,
+   "time_to_first_token_ms": 400
   },
   {
    "id": "gemini-2-5-flash-lite",
@@ -296,8 +296,8 @@
    "context_window": 1048576,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 237.9,
-   "time_to_first_token_ms": 358
+   "output_tokens_per_second": 240,
+   "time_to_first_token_ms": 350
   },
   {
    "id": "gemini-2-5-flash-lite-preview-09-2025",
@@ -309,8 +309,8 @@
    "context_window": 1048576,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 444.2,
-   "time_to_first_token_ms": 377
+   "output_tokens_per_second": 445,
+   "time_to_first_token_ms": 400
   },
   {
    "id": "gemini-2-5-flash-preview-09-2025",
@@ -322,8 +322,8 @@
    "context_window": 1048576,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 285.9,
-   "time_to_first_token_ms": 361
+   "output_tokens_per_second": 285,
+   "time_to_first_token_ms": 350
   },
   {
    "id": "gemini-2-5-pro",
@@ -335,8 +335,8 @@
    "context_window": 1048576,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 166.0,
-   "time_to_first_token_ms": 32292
+   "output_tokens_per_second": 165,
+   "time_to_first_token_ms": 32300
   },
   {
    "id": "llama-3.1-8b-instant",
@@ -399,8 +399,8 @@
    "output_price_per_mtok": 0.6,
    "context_window": 131072,
    "supports_tools": true,
-   "output_tokens_per_second": 377.1,
-   "time_to_first_token_ms": 429
+   "output_tokens_per_second": 375,
+   "time_to_first_token_ms": 450
   },
   {
    "id": "openai/gpt-oss-20b",
@@ -411,8 +411,8 @@
    "output_price_per_mtok": 0.3,
    "context_window": 131072,
    "supports_tools": true,
-   "output_tokens_per_second": 233.8,
-   "time_to_first_token_ms": 478
+   "output_tokens_per_second": 235,
+   "time_to_first_token_ms": 500
   },
   {
    "id": "openai/gpt-oss-safeguard-20b",
@@ -493,8 +493,8 @@
    "output_price_per_mtok": 0.3,
    "context_window": 128000,
    "supports_tools": true,
-   "output_tokens_per_second": 202.2,
-   "time_to_first_token_ms": 348
+   "output_tokens_per_second": 200,
+   "time_to_first_token_ms": 350
   },
   {
    "id": "devstral-small-2507",
@@ -535,8 +535,8 @@
    "output_price_per_mtok": 5.0,
    "context_window": 40000,
    "supports_tools": true,
-   "output_tokens_per_second": 47.0,
-   "time_to_first_token_ms": 472
+   "output_tokens_per_second": 45,
+   "time_to_first_token_ms": 450
   },
   {
    "id": "magistral-medium-latest",
@@ -588,8 +588,8 @@
    "context_window": 256000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 47.2,
-   "time_to_first_token_ms": 536
+   "output_tokens_per_second": 45,
+   "time_to_first_token_ms": 550
   },
   {
    "id": "mistral-large-latest",
@@ -630,8 +630,8 @@
    "output_price_per_mtok": 0.3,
    "context_window": 32000,
    "supports_tools": true,
-   "output_tokens_per_second": 123.5,
-   "time_to_first_token_ms": 298
+   "output_tokens_per_second": 125,
+   "time_to_first_token_ms": 300
   },
   {
    "id": "mistral-small-latest",
@@ -664,8 +664,8 @@
    "context_window": 128000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 24.8,
-   "time_to_first_token_ms": 522
+   "output_tokens_per_second": 25,
+   "time_to_first_token_ms": 500
   },
   {
    "id": "pixtral-large-latest",
@@ -759,8 +759,8 @@
    "output_price_per_mtok": 60.0,
    "context_window": 8192,
    "supports_tools": true,
-   "output_tokens_per_second": 30.8,
-   "time_to_first_token_ms": 676
+   "output_tokens_per_second": 30,
+   "time_to_first_token_ms": 700
   },
   {
    "id": "gpt-4-0125-preview",
@@ -792,8 +792,8 @@
    "context_window": 1047576,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 112.2,
-   "time_to_first_token_ms": 561
+   "output_tokens_per_second": 110,
+   "time_to_first_token_ms": 550
   },
   {
    "id": "gpt-4-1-mini",
@@ -805,8 +805,8 @@
    "context_window": 1047576,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 75.5,
-   "time_to_first_token_ms": 476
+   "output_tokens_per_second": 75,
+   "time_to_first_token_ms": 500
   },
   {
    "id": "gpt-4-1-nano",
@@ -818,8 +818,8 @@
    "context_window": 1047576,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 159.8,
-   "time_to_first_token_ms": 374
+   "output_tokens_per_second": 160,
+   "time_to_first_token_ms": 350
   },
   {
    "id": "gpt-4-1106-preview",
@@ -841,8 +841,8 @@
    "context_window": 128000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 34.7,
-   "time_to_first_token_ms": 897
+   "output_tokens_per_second": 35,
+   "time_to_first_token_ms": 900
   },
   {
    "id": "gpt-4-turbo-2024-04-09",
@@ -854,8 +854,8 @@
    "context_window": 128000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 34.7,
-   "time_to_first_token_ms": 897
+   "output_tokens_per_second": 35,
+   "time_to_first_token_ms": 900
   },
   {
    "id": "gpt-4-turbo-preview",
@@ -943,8 +943,8 @@
    "context_window": 128000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 173.6,
-   "time_to_first_token_ms": 439
+   "output_tokens_per_second": 175,
+   "time_to_first_token_ms": 450
   },
   {
    "id": "gpt-4o-2024-05-13",
@@ -956,8 +956,8 @@
    "context_window": 128000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 118.8,
-   "time_to_first_token_ms": 485
+   "output_tokens_per_second": 120,
+   "time_to_first_token_ms": 500
   },
   {
    "id": "gpt-4o-2024-08-06",
@@ -969,8 +969,8 @@
    "context_window": 128000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 116.0,
-   "time_to_first_token_ms": 497
+   "output_tokens_per_second": 115,
+   "time_to_first_token_ms": 500
   },
   {
    "id": "gpt-4o-2024-11-20",
@@ -982,8 +982,8 @@
    "context_window": 128000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 173.6,
-   "time_to_first_token_ms": 439
+   "output_tokens_per_second": 175,
+   "time_to_first_token_ms": 450
   },
   {
    "id": "gpt-4o-audio-preview",
@@ -1025,8 +1025,8 @@
    "context_window": 128000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 51.2,
-   "time_to_first_token_ms": 465
+   "output_tokens_per_second": 50,
+   "time_to_first_token_ms": 450
   },
   {
    "id": "gpt-4o-mini-2024-07-18",
@@ -1038,8 +1038,8 @@
    "context_window": 128000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 51.2,
-   "time_to_first_token_ms": 465
+   "output_tokens_per_second": 50,
+   "time_to_first_token_ms": 450
   },
   {
    "id": "gpt-4o-mini-audio-preview",
@@ -1165,8 +1165,8 @@
    "context_window": 272000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 143.3,
-   "time_to_first_token_ms": 80753
+   "output_tokens_per_second": 145,
+   "time_to_first_token_ms": 80750
   },
   {
    "id": "gpt-5-1",
@@ -1178,8 +1178,8 @@
    "context_window": 272000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 95.9,
-   "time_to_first_token_ms": 30892
+   "output_tokens_per_second": 95,
+   "time_to_first_token_ms": 30900
   },
   {
    "id": "gpt-5-1-codex",
@@ -1191,8 +1191,8 @@
    "context_window": 272000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 183.7,
-   "time_to_first_token_ms": 16559
+   "output_tokens_per_second": 185,
+   "time_to_first_token_ms": 16550
   },
   {
    "id": "gpt-5-1-codex-mini",
@@ -1204,8 +1204,8 @@
    "context_window": 272000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 164.7,
-   "time_to_first_token_ms": 9873
+   "output_tokens_per_second": 165,
+   "time_to_first_token_ms": 9850
   },
   {
    "id": "gpt-5-2",
@@ -1217,8 +1217,8 @@
    "context_window": 272000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 112.1,
-   "time_to_first_token_ms": 30378
+   "output_tokens_per_second": 110,
+   "time_to_first_token_ms": 30400
   },
   {
    "id": "gpt-5-2025-08-07",
@@ -1230,8 +1230,8 @@
    "context_window": 272000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 143.3,
-   "time_to_first_token_ms": 80753
+   "output_tokens_per_second": 145,
+   "time_to_first_token_ms": 80750
   },
   {
    "id": "gpt-5-codex",
@@ -1243,8 +1243,8 @@
    "context_window": 272000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 243.3,
-   "time_to_first_token_ms": 18452
+   "output_tokens_per_second": 245,
+   "time_to_first_token_ms": 18450
   },
   {
    "id": "gpt-5-mini",
@@ -1256,8 +1256,8 @@
    "context_window": 272000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 71.7,
-   "time_to_first_token_ms": 110851
+   "output_tokens_per_second": 70,
+   "time_to_first_token_ms": 110850
   },
   {
    "id": "gpt-5-mini-2025-08-07",
@@ -1269,8 +1269,8 @@
    "context_window": 272000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 71.7,
-   "time_to_first_token_ms": 110851
+   "output_tokens_per_second": 70,
+   "time_to_first_token_ms": 110850
   },
   {
    "id": "gpt-5-nano",
@@ -1282,8 +1282,8 @@
    "context_window": 272000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 136.5,
-   "time_to_first_token_ms": 99964
+   "output_tokens_per_second": 135,
+   "time_to_first_token_ms": 99950
   },
   {
    "id": "gpt-5-nano-2025-08-07",
@@ -1295,8 +1295,8 @@
    "context_window": 272000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 136.5,
-   "time_to_first_token_ms": 99964
+   "output_tokens_per_second": 135,
+   "time_to_first_token_ms": 99950
   },
   {
    "id": "gpt-5-pro",
@@ -1562,8 +1562,8 @@
    "context_window": 200000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 204.8,
-   "time_to_first_token_ms": 15959
+   "output_tokens_per_second": 205,
+   "time_to_first_token_ms": 15950
   },
   {
    "id": "o1-2024-12-17",
@@ -1575,8 +1575,8 @@
    "context_window": 200000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 204.8,
-   "time_to_first_token_ms": 15959
+   "output_tokens_per_second": 205,
+   "time_to_first_token_ms": 15950
   },
   {
    "id": "o1-pro",
@@ -1610,8 +1610,8 @@
    "context_window": 200000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 295.3,
-   "time_to_first_token_ms": 9085
+   "output_tokens_per_second": 295,
+   "time_to_first_token_ms": 9100
   },
   {
    "id": "o3-2025-04-16",
@@ -1623,8 +1623,8 @@
    "context_window": 200000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 295.3,
-   "time_to_first_token_ms": 9085
+   "output_tokens_per_second": 295,
+   "time_to_first_token_ms": 9100
   },
   {
    "id": "o3-deep-research",
@@ -1657,8 +1657,8 @@
    "output_price_per_mtok": 4.4,
    "context_window": 200000,
    "supports_tools": true,
-   "output_tokens_per_second": 168.5,
-   "time_to_first_token_ms": 14073
+   "output_tokens_per_second": 170,
+   "time_to_first_token_ms": 14050
   },
   {
    "id": "o3-mini-2025-01-31",
@@ -1669,8 +1669,8 @@
    "output_price_per_mtok": 4.4,
    "context_window": 200000,
    "supports_tools": true,
-   "output_tokens_per_second": 168.5,
-   "time_to_first_token_ms": 14073
+   "output_tokens_per_second": 170,
+   "time_to_first_token_ms": 14050
   },
   {
    "id": "o3-pro",
@@ -1682,8 +1682,8 @@
    "context_window": 200000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 48.9,
-   "time_to_first_token_ms": 57510
+   "output_tokens_per_second": 50,
+   "time_to_first_token_ms": 57500
   },
   {
    "id": "o3-pro-2025-06-10",
@@ -1695,8 +1695,8 @@
    "context_window": 200000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 48.9,
-   "time_to_first_token_ms": 57510
+   "output_tokens_per_second": 50,
+   "time_to_first_token_ms": 57500
   },
   {
    "id": "o4-mini",
@@ -1708,8 +1708,8 @@
    "context_window": 200000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 158.3,
-   "time_to_first_token_ms": 45428
+   "output_tokens_per_second": 160,
+   "time_to_first_token_ms": 45450
   },
   {
    "id": "o4-mini-2025-04-16",
@@ -1721,8 +1721,8 @@
    "context_window": 200000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 158.3,
-   "time_to_first_token_ms": 45428
+   "output_tokens_per_second": 160,
+   "time_to_first_token_ms": 45450
   },
   {
    "id": "o4-mini-deep-research",
@@ -1755,8 +1755,8 @@
    "output_price_per_mtok": 1.25,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 105.7,
-   "time_to_first_token_ms": 414
+   "output_tokens_per_second": 105,
+   "time_to_first_token_ms": 400
   },
   {
    "id": "anthropic/claude-3.5-haiku-20241022",
@@ -2098,8 +2098,8 @@
    "output_price_per_mtok": 1.2,
    "context_window": 200000,
    "supports_tools": true,
-   "output_tokens_per_second": 68.5,
-   "time_to_first_token_ms": 1531
+   "output_tokens_per_second": 70,
+   "time_to_first_token_ms": 1550
   },
   {
    "id": "mistralai/devstral-2512",
@@ -2195,8 +2195,8 @@
    "output_price_per_mtok": 60.0,
    "context_window": 8192,
    "supports_tools": true,
-   "output_tokens_per_second": 30.8,
-   "time_to_first_token_ms": 676
+   "output_tokens_per_second": 30,
+   "time_to_first_token_ms": 700
   },
   {
    "id": "openai/gpt-4-1106-preview",
@@ -2218,8 +2218,8 @@
    "context_window": 128000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 34.7,
-   "time_to_first_token_ms": 897
+   "output_tokens_per_second": 35,
+   "time_to_first_token_ms": 900
   },
   {
    "id": "openai/gpt-4-turbo-preview",
@@ -2274,8 +2274,8 @@
    "context_window": 128000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 173.6,
-   "time_to_first_token_ms": 439
+   "output_tokens_per_second": 175,
+   "time_to_first_token_ms": 450
   },
   {
    "id": "openai/gpt-4o-2024-05-13",
@@ -2287,8 +2287,8 @@
    "context_window": 128000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 173.6,
-   "time_to_first_token_ms": 439
+   "output_tokens_per_second": 175,
+   "time_to_first_token_ms": 450
   },
   {
    "id": "openai/gpt-4o-2024-08-06",
@@ -2300,8 +2300,8 @@
    "context_window": 128000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 173.6,
-   "time_to_first_token_ms": 439
+   "output_tokens_per_second": 175,
+   "time_to_first_token_ms": 450
   },
   {
    "id": "openai/gpt-4o-2024-11-20",
@@ -2313,8 +2313,8 @@
    "context_window": 128000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 173.6,
-   "time_to_first_token_ms": 439
+   "output_tokens_per_second": 175,
+   "time_to_first_token_ms": 450
   },
   {
    "id": "openai/gpt-4o-audio-preview",
@@ -2336,8 +2336,8 @@
    "context_window": 128000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 51.2,
-   "time_to_first_token_ms": 465
+   "output_tokens_per_second": 50,
+   "time_to_first_token_ms": 450
   },
   {
    "id": "openai/gpt-4o-mini-2024-07-18",
@@ -2349,8 +2349,8 @@
    "context_window": 128000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 51.2,
-   "time_to_first_token_ms": 465
+   "output_tokens_per_second": 50,
+   "time_to_first_token_ms": 450
   },
   {
    "id": "openai/gpt-4o-mini-search-preview",
@@ -2384,8 +2384,8 @@
    "context_window": 272000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 143.3,
-   "time_to_first_token_ms": 80753
+   "output_tokens_per_second": 145,
+   "time_to_first_token_ms": 80750
   },
   {
    "id": "openai/gpt-5-codex",
@@ -2397,8 +2397,8 @@
    "context_window": 272000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 243.3,
-   "time_to_first_token_ms": 18452
+   "output_tokens_per_second": 245,
+   "time_to_first_token_ms": 18450
   },
   {
    "id": "openai/gpt-5-mini",
@@ -2410,8 +2410,8 @@
    "context_window": 272000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 71.7,
-   "time_to_first_token_ms": 110851
+   "output_tokens_per_second": 70,
+   "time_to_first_token_ms": 110850
   },
   {
    "id": "openai/gpt-5-nano",
@@ -2423,8 +2423,8 @@
    "context_window": 272000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 136.5,
-   "time_to_first_token_ms": 99964
+   "output_tokens_per_second": 135,
+   "time_to_first_token_ms": 99950
   },
   {
    "id": "openai/gpt-5-pro",
@@ -2523,8 +2523,8 @@
    "output_price_per_mtok": 0.8,
    "context_window": 131072,
    "supports_tools": true,
-   "output_tokens_per_second": 377.1,
-   "time_to_first_token_ms": 429
+   "output_tokens_per_second": 375,
+   "time_to_first_token_ms": 450
   },
   {
    "id": "openai/gpt-oss-20b",
@@ -2535,8 +2535,8 @@
    "output_price_per_mtok": 0.1,
    "context_window": 131072,
    "supports_tools": true,
-   "output_tokens_per_second": 233.8,
-   "time_to_first_token_ms": 478
+   "output_tokens_per_second": 235,
+   "time_to_first_token_ms": 500
   },
   {
    "id": "openai/o1",
@@ -2548,8 +2548,8 @@
    "context_window": 200000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 204.8,
-   "time_to_first_token_ms": 15959
+   "output_tokens_per_second": 205,
+   "time_to_first_token_ms": 15950
   },
   {
    "id": "openai/o1-pro",
@@ -2572,8 +2572,8 @@
    "context_window": 200000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 295.3,
-   "time_to_first_token_ms": 9085
+   "output_tokens_per_second": 295,
+   "time_to_first_token_ms": 9100
   },
   {
    "id": "openai/o3-deep-research",
@@ -2595,8 +2595,8 @@
    "output_price_per_mtok": 4.4,
    "context_window": 200000,
    "supports_tools": true,
-   "output_tokens_per_second": 168.5,
-   "time_to_first_token_ms": 14073
+   "output_tokens_per_second": 170,
+   "time_to_first_token_ms": 14050
   },
   {
    "id": "openai/o3-mini-high",
@@ -2607,8 +2607,8 @@
    "output_price_per_mtok": 4.4,
    "context_window": 128000,
    "supports_tools": true,
-   "output_tokens_per_second": 174.1,
-   "time_to_first_token_ms": 51467
+   "output_tokens_per_second": 175,
+   "time_to_first_token_ms": 51450
   },
   {
    "id": "openai/o3-pro",
@@ -2620,8 +2620,8 @@
    "context_window": 200000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 48.9,
-   "time_to_first_token_ms": 57510
+   "output_tokens_per_second": 50,
+   "time_to_first_token_ms": 57500
   },
   {
    "id": "openai/o4-mini",
@@ -2633,8 +2633,8 @@
    "context_window": 200000,
    "supports_tools": true,
    "supports_vision": true,
-   "output_tokens_per_second": 158.3,
-   "time_to_first_token_ms": 45428
+   "output_tokens_per_second": 160,
+   "time_to_first_token_ms": 45450
   },
   {
    "id": "openai/o4-mini-deep-research",
@@ -2697,8 +2697,8 @@
    "output_price_per_mtok": 15.0,
    "context_window": 256000,
    "supports_tools": true,
-   "output_tokens_per_second": 30.3,
-   "time_to_first_token_ms": 8458
+   "output_tokens_per_second": 30,
+   "time_to_first_token_ms": 8450
   },
   {
    "id": "z-ai/glm-4.6",
