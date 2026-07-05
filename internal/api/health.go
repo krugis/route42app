@@ -18,7 +18,7 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, http.StatusOK, map[string]any{
 		"status":         status,
-		"version":        "dev",
+		"version":        s.version,
 		"analyzer":       s.cfg.Analyzer.Mode,
 		"store_ok":       storeOK,
 		"catalog_models": len(s.catalog.Models),

@@ -60,8 +60,9 @@ type DB struct {
 }
 
 // Provider holds static credentials for a cloud provider. Keys can also be
-// managed at runtime via the /api/keys endpoints (stored encrypted in the DB);
-// config-file keys take precedence when both are present.
+// managed at runtime via the /api/keys endpoints (stored encrypted in the
+// DB); runtime keys take precedence over config-file keys, so setting a key
+// through the API takes effect immediately.
 type Provider struct {
 	APIKey  string `yaml:"api_key"`
 	BaseURL string `yaml:"base_url"` // optional override, e.g. proxies

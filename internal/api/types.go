@@ -64,12 +64,15 @@ type ChatUsage struct {
 
 // StreamChunk is one OpenAI SSE chunk for streaming completions.
 type StreamChunk struct {
-	ID       string         `json:"id"`
-	Object   string         `json:"object"` // "chat.completion.chunk"
-	Created  int64          `json:"created"`
-	Model    string         `json:"model"`
-	Choices  []StreamChoice `json:"choices"`
-	XRoute42 *XRoute42      `json:"x_route42,omitempty"` // only on the final metadata chunk
+	ID      string         `json:"id"`
+	Object  string         `json:"object"` // "chat.completion.chunk"
+	Created int64          `json:"created"`
+	Model   string         `json:"model"`
+	Choices []StreamChoice `json:"choices"`
+	// Usage is set only on the final metadata chunk (which carries empty
+	// choices, matching OpenAI's stream_options include_usage convention).
+	Usage    *ChatUsage `json:"usage,omitempty"`
+	XRoute42 *XRoute42  `json:"x_route42,omitempty"` // only on the final metadata chunk
 }
 
 // StreamChoice is one choice in a streaming chunk.
@@ -81,9 +84,12 @@ type StreamChoice struct {
 
 // ChatDelta is the incremental content in a streaming chunk.
 type ChatDelta struct {
-	Role      string          `json:"role,omitempty"`
-	Content   string          `json:"content,omitempty"`
-	ToolCalls json.RawMessage `json:"tool_calls,omitempty"`
+	Role    string `json:"role,omitempty"`
+	Content string `json:"content,omitempty"`
+	// ReasoningContent carries thinking/reasoning deltas for models that
+	// emit them (DeepSeek-style field name; OpenAI clients ignore it).
+	ReasoningContent string          `json:"reasoning_content,omitempty"`
+	ToolCalls        json.RawMessage `json:"tool_calls,omitempty"`
 }
 
 // XRoute42 is the non-breaking Route42 extension surfaced on every

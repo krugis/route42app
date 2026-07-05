@@ -29,6 +29,7 @@ type Server struct {
 	registry *llm.Registry
 	catalog  *catalog.Catalog
 	logger   *slog.Logger
+	version  string
 }
 
 // Options configures optional Server dependencies (used in tests).
@@ -39,6 +40,8 @@ type Options struct {
 	Logger *slog.Logger
 	// Registry overrides the default provider registry (offline-test seam).
 	Registry *llm.Registry
+	// Version is the build version reported by /health ("dev" when empty).
+	Version string
 }
 
 // New builds a Server from the effective config and an opened store. The
@@ -72,20 +75,15 @@ func New(cfg *config.Config, st *store.Store, opts Options) (*Server, error) {
 
 	registry := opts.Registry
 	if registry == nil {
-		// llm.KeyFunc returns only the key ("" when missing); the store's
-		// GetProviderKey also returns an error which we treat as "no key".
 		keyFor := func(provider string) string {
-			k, err := st.GetProviderKey(provider)
-			if err != nil || k != "" {
-				return k
-			}
-			// Fall back to a config-file key.
-			if p, ok := cfg.Providers[provider]; ok {
-				return p.APIKey
-			}
-			return ""
+			return resolveProviderKey(st, cfg, provider)
 		}
 		registry = llm.NewRegistry(keyFor, providerBaseURLs(cfg), cfg.Ollama.BaseURL)
+	}
+
+	version := opts.Version
+	if version == "" {
+		version = "dev"
 	}
 
 	return &Server{
@@ -96,6 +94,7 @@ func New(cfg *config.Config, st *store.Store, opts Options) (*Server, error) {
 		registry: registry,
 		catalog:  cat,
 		logger:   logger,
+		version:  version,
 	}, nil
 }
 

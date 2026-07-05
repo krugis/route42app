@@ -2,9 +2,12 @@ package api
 
 import (
 	"net/http"
+	"sort"
 	"strings"
 
+	"github.com/krugis/route42app/internal/config"
 	"github.com/krugis/route42app/internal/llm"
+	"github.com/krugis/route42app/internal/store"
 )
 
 // keyRequest is the body of POST /api/keys.
@@ -69,8 +72,13 @@ func (s *Server) handleListKeys(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	out := make([]keyEntry, 0, len(seen))
+	names := make([]string, 0, len(seen))
 	for prov := range seen {
+		names = append(names, prov)
+	}
+	sort.Strings(names)
+	out := make([]keyEntry, 0, len(names))
+	for _, prov := range names {
 		out = append(out, keyEntry{Provider: prov, HasKey: true, KeyMask: maskKey(s.keyFor(prov))})
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"providers": out})
@@ -90,20 +98,26 @@ func (s *Server) handleDeleteKey(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{"provider": llm.CanonicalProvider(provider), "status": "deleted"})
 }
 
-// keyFor resolves a key from the store (the registry uses this too via
-// store.GetProviderKey, but listing needs the masked value).
+// keyFor resolves the effective key for a provider (see resolveProviderKey).
 func (s *Server) keyFor(provider string) string {
-	k, err := s.store.GetProviderKey(provider)
-	if err != nil || k != "" {
+	return resolveProviderKey(s.store, s.cfg, provider)
+}
+
+// resolveProviderKey returns the effective API key for a provider:
+// runtime (store) keys win over config-file keys, so a key set via
+// POST /api/keys takes effect immediately. A store read error falls
+// through to the config-file key rather than disabling the provider.
+// Config lookup accepts both canonical and alias spellings.
+func resolveProviderKey(st *store.Store, cfg *config.Config, provider string) string {
+	canonical := llm.CanonicalProvider(provider)
+	if k, err := st.GetProviderKey(canonical); err == nil && k != "" {
 		return k
 	}
-	// Fall back to config-file key.
-	if p, ok := s.cfg.Providers[provider]; ok {
+	if p, ok := cfg.Providers[canonical]; ok && p.APIKey != "" {
 		return p.APIKey
 	}
-	// Try non-canonical lookup in config.
-	for name, p := range s.cfg.Providers {
-		if llm.CanonicalProvider(name) == provider {
+	for name, p := range cfg.Providers {
+		if llm.CanonicalProvider(name) == canonical && p.APIKey != "" {
 			return p.APIKey
 		}
 	}

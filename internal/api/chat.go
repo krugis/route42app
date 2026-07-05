@@ -7,7 +7,6 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/krugis/route42app/internal/analyzer"
@@ -99,9 +98,9 @@ func (s *Server) handleChatCompletions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.Stream {
-		s.executeStream(w, r, req, chain, analysis, rankResult, reason, maxTokens, prefs)
+		s.executeStream(w, r, req, chain, analysis, rankResult, reason, maxTokens)
 	} else {
-		s.executeComplete(w, r, req, chain, analysis, rankResult, reason, maxTokens, prefs)
+		s.executeComplete(w, r, req, chain, analysis, rankResult, reason, maxTokens)
 	}
 }
 
@@ -153,7 +152,7 @@ func (s *Server) lookupProvider(modelID string) (string, bool) {
 
 // executeComplete runs the non-streaming path: try each target until one
 // succeeds, then build the OpenAI response with the x_route42 extension.
-func (s *Server) executeComplete(w http.ResponseWriter, r *http.Request, req ChatRequest, chain []execTarget, analysis analyzer.AnalysisResult, rankResult *ranking.RankResult, reason string, maxTokens int, prefs config.Prefs) {
+func (s *Server) executeComplete(w http.ResponseWriter, r *http.Request, req ChatRequest, chain []execTarget, analysis analyzer.AnalysisResult, rankResult *ranking.RankResult, reason string, maxTokens int) {
 	start := time.Now()
 	providerReq := llm.ChatRequest{
 		Model:       chain[0].model,
@@ -201,7 +200,7 @@ func (s *Server) executeComplete(w http.ResponseWriter, r *http.Request, req Cha
 // provider streams deltas; a provider that fails before the first byte is
 // retried on the next candidate. After the content stream completes, a
 // final metadata chunk carries the x_route42 extension.
-func (s *Server) executeStream(w http.ResponseWriter, r *http.Request, req ChatRequest, chain []execTarget, analysis analyzer.AnalysisResult, rankResult *ranking.RankResult, reason string, maxTokens int, prefs config.Prefs) {
+func (s *Server) executeStream(w http.ResponseWriter, r *http.Request, req ChatRequest, chain []execTarget, analysis analyzer.AnalysisResult, rankResult *ranking.RankResult, reason string, maxTokens int) {
 	flusher, ok := w.(http.Flusher)
 	if !ok {
 		writeError(w, http.StatusInternalServerError, "streaming not supported", "server_error")
@@ -258,6 +257,8 @@ func (s *Server) executeStream(w http.ResponseWriter, r *http.Request, req ChatR
 					ID: id, Object: "chat.completion.chunk", Created: nowUnix(), Model: t.model,
 					Choices: []StreamChoice{{Index: 0, Delta: ChatDelta{}, FinishReason: ptrString("error")}},
 				})
+				writeSSEDone(w, flusher)
+				s.logInteraction(analysis, t, promptTokens, completionTokens, attempts, time.Since(start), "error", rankResult)
 				return
 			}
 			anyByte = true
@@ -268,19 +269,13 @@ func (s *Server) executeStream(w http.ResponseWriter, r *http.Request, req ChatR
 				completionTokens = chunk.Usage.CompletionTokens
 			}
 			if chunk.Done {
-				if chunk.Usage.PromptTokens > 0 {
-					promptTokens = chunk.Usage.PromptTokens
-				}
-				if chunk.Usage.CompletionTokens > 0 {
-					completionTokens = chunk.Usage.CompletionTokens
-				}
 				finishReason = "stop"
 				continue
 			}
-			delta := ChatDelta{Content: chunk.Delta}
-			if chunk.ReasoningDelta != "" {
-				delta.Content = chunk.ReasoningDelta // surfaced as content for CE
-			}
+			// Reasoning deltas are surfaced on their own field
+			// (reasoning_content, the de-facto convention) — never as
+			// answer content, and never displacing real content.
+			delta := ChatDelta{Content: chunk.Delta, ReasoningContent: chunk.ReasoningDelta}
 			writeSSE(w, flusher, StreamChunk{
 				ID: id, Object: "chat.completion.chunk", Created: nowUnix(), Model: t.model,
 				Choices: []StreamChoice{{Index: 0, Delta: delta}},
@@ -290,18 +285,27 @@ func (s *Server) executeStream(w http.ResponseWriter, r *http.Request, req ChatR
 		if finishReason == "" {
 			finishReason = "stop"
 		}
+		if promptTokens == 0 {
+			promptTokens = estimatePromptTokens(req.Messages)
+		}
 		// Final content chunk with finish_reason.
 		writeSSE(w, flusher, StreamChunk{
 			ID: id, Object: "chat.completion.chunk", Created: nowUnix(), Model: t.model,
 			Choices: []StreamChoice{{Index: 0, Delta: ChatDelta{}, FinishReason: ptrString(finishReason)}},
 		})
-		// Final metadata chunk with x_route42.
+		// Final metadata chunk: empty choices (OpenAI include_usage
+		// convention) carrying usage and the x_route42 extension.
 		writeSSE(w, flusher, StreamChunk{
 			ID: id, Object: "chat.completion.chunk", Created: nowUnix(), Model: t.model,
-			Choices:  []StreamChoice{{Index: 0, Delta: ChatDelta{}, FinishReason: ptrString(finishReason)}},
-			XRoute42: s.buildXRoute42(t, analysis, rankResult, reason, attempts, promptTokens, completionTokens),
+			Choices: []StreamChoice{},
+			Usage: &ChatUsage{
+				PromptTokens:     promptTokens,
+				CompletionTokens: completionTokens,
+				TotalTokens:      promptTokens + completionTokens,
+			},
+			XRoute42: s.buildXRoute42(t, analysis, rankResult, reason, attempts),
 		})
-		flusher.Flush()
+		writeSSEDone(w, flusher)
 		s.logInteraction(analysis, t, promptTokens, completionTokens, attempts, time.Since(start), "ok", rankResult)
 		return
 
@@ -318,7 +322,7 @@ func (s *Server) executeStream(w http.ResponseWriter, r *http.Request, req ChatR
 		Choices:  []StreamChoice{{Index: 0, Delta: ChatDelta{}, FinishReason: ptrString("error")}},
 		XRoute42: &XRoute42{Reason: "error", CandidatesConsidered: len(chain)},
 	})
-	flusher.Flush()
+	writeSSEDone(w, flusher)
 }
 
 // buildCompleteResponse assembles the non-streaming OpenAI response with
@@ -343,13 +347,13 @@ func (s *Server) buildCompleteResponse(req ChatRequest, t execTarget, resp *llm.
 			CompletionTokens: resp.Usage.CompletionTokens,
 			TotalTokens:      promptTokens + resp.Usage.CompletionTokens,
 		},
-		XRoute42: s.buildXRoute42(t, analysis, rankResult, reason, attempts, promptTokens, resp.Usage.CompletionTokens),
+		XRoute42: s.buildXRoute42(t, analysis, rankResult, reason, attempts),
 	}
 }
 
 // buildXRoute42 assembles the routing-decision extension. est_cost_cents
 // comes from the ranker when available; for a pinned model it is 0.
-func (s *Server) buildXRoute42(t execTarget, analysis analyzer.AnalysisResult, rankResult *ranking.RankResult, reason string, attempts, promptTokens, completionTokens int) *XRoute42 {
+func (s *Server) buildXRoute42(t execTarget, analysis analyzer.AnalysisResult, rankResult *ranking.RankResult, reason string, attempts int) *XRoute42 {
 	x := &XRoute42{
 		SelectedModel:    t.model,
 		Provider:         t.provider,
@@ -446,6 +450,13 @@ func writeSSE(w io.Writer, flusher http.Flusher, chunk StreamChunk) {
 	flusher.Flush()
 }
 
+// writeSSEDone emits the OpenAI stream terminator. SDKs (openai-python,
+// openai-node) rely on it to end iteration cleanly.
+func writeSSEDone(w io.Writer, flusher http.Flusher) {
+	_, _ = w.Write([]byte("data: [DONE]\n\n"))
+	flusher.Flush()
+}
+
 func intValue(p *int) int {
 	if p == nil {
 		return 0
@@ -482,6 +493,3 @@ func estimateActualCostCents(m catalog.ModelInfo, promptTokens, completionTokens
 func randID() string {
 	return fmt.Sprintf("%d", time.Now().UnixNano())
 }
-
-// Ensure strings stays referenced (used by routing helpers across files).
-var _ = strings.TrimSpace

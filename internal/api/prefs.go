@@ -63,6 +63,3 @@ func errf(format string, args ...any) error {
 	return fmt.Errorf(format, args...)
 }
 
-type prefsError struct{ msg string }
-
-func (e *prefsError) Error() string { return e.msg }

@@ -259,21 +259,43 @@ func TestE2EChatCompletionStream(t *testing.T) {
 	// Parse the SSE stream.
 	scanner := bufio.NewScanner(resp.Body)
 	var content strings.Builder
-	var sawMeta bool
+	var sawMeta, sawDone, sawUsage bool
+	finishChunks := 0
 	for scanner.Scan() {
 		line := scanner.Text()
 		if !strings.HasPrefix(line, "data: ") {
 			continue
 		}
+		payload := strings.TrimPrefix(line, "data: ")
+		if payload == "[DONE]" {
+			sawDone = true
+			continue
+		}
+		if sawDone {
+			t.Fatalf("data after [DONE] terminator: %q", payload)
+		}
 		var chunk api.StreamChunk
-		if err := json.Unmarshal([]byte(strings.TrimPrefix(line, "data: ")), &chunk); err != nil {
+		if err := json.Unmarshal([]byte(payload), &chunk); err != nil {
 			t.Fatalf("decode chunk: %v", err)
 		}
 		for _, c := range chunk.Choices {
 			content.WriteString(c.Delta.Content)
+			if c.FinishReason != nil {
+				finishChunks++
+			}
 		}
 		if chunk.XRoute42 != nil {
 			sawMeta = true
+			// The metadata chunk must not repeat finish_reason (it carries
+			// empty choices per the OpenAI include_usage convention).
+			if len(chunk.Choices) != 0 {
+				t.Errorf("metadata chunk must have empty choices, got %d", len(chunk.Choices))
+			}
+			if chunk.Usage == nil || chunk.Usage.TotalTokens == 0 {
+				t.Error("metadata chunk must carry usage")
+			} else {
+				sawUsage = true
+			}
 		}
 	}
 	if err := scanner.Err(); err != nil {
@@ -284,6 +306,15 @@ func TestE2EChatCompletionStream(t *testing.T) {
 	}
 	if !sawMeta {
 		t.Error("expected a final metadata chunk with x_route42")
+	}
+	if !sawDone {
+		t.Error("stream must terminate with data: [DONE] (OpenAI SDK contract)")
+	}
+	if !sawUsage {
+		t.Error("expected usage on the final metadata chunk")
+	}
+	if finishChunks != 1 {
+		t.Errorf("expected exactly one finish_reason chunk, got %d", finishChunks)
 	}
 }
 

@@ -29,7 +29,7 @@ func runServe(args []string) error {
 	}
 	defer env.close()
 
-	srv, err := api.New(env.cfg, env.store, api.Options{Logger: env.logger})
+	srv, err := api.New(env.cfg, env.store, api.Options{Logger: env.logger, Version: version})
 	if err != nil {
 		return fmt.Errorf("build server: %w", err)
 	}

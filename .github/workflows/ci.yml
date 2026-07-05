@@ -33,6 +33,9 @@ jobs:
       - name: Test
         run: go test -race ./...
 
+      - name: E2E tests
+        run: go test -race -tags e2e ./test/e2e/...
+
   gitleaks:
     name: secret scan
     runs-on: ubuntu-latest
