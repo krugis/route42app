@@ -45,6 +45,9 @@ type AnalyzerLLM struct {
 	// TimeoutMs bounds the classification call; on timeout the request
 	// falls back to the heuristic analyzer.
 	TimeoutMs int `yaml:"timeout_ms"`
+	// HybridWeight weights the LLM's complexity score in hybrid mode (0..1).
+	// Default 0.5 gives equal weight to LLM and heuristic.
+	HybridWeight float64 `yaml:"hybrid_weight"`
 }
 
 // Ollama configures the local Ollama endpoint used for discovery,
@@ -87,6 +90,7 @@ type Prefs struct {
 const (
 	ModeHeuristic = "heuristic"
 	ModeLLM       = "llm"
+	ModeHybrid    = "hybrid"
 )
 
 // Priority modes.
@@ -99,7 +103,7 @@ func Default() *Config {
 		Server: Server{Port: 4242},
 		Analyzer: Analyzer{
 			Mode: ModeHeuristic,
-			LLM:  AnalyzerLLM{Model: "qwen2.5:0.5b", TimeoutMs: 1500},
+			LLM:  AnalyzerLLM{Model: "qwen2.5:0.5b", TimeoutMs: 1500, HybridWeight: 0.5},
 		},
 		Ollama:    Ollama{BaseURL: "http://localhost:11434"},
 		DB:        DB{Path: defaultDBPath()},
@@ -180,6 +184,13 @@ func (c *Config) applyEnv() error {
 		}
 		c.Analyzer.LLM.TimeoutMs = ms
 	}
+	if v := os.Getenv("ROUTE42_ANALYZER_LLM_HYBRID_WEIGHT"); v != "" {
+		w, err := strconv.ParseFloat(v, 64)
+		if err != nil {
+			return fmt.Errorf("ROUTE42_ANALYZER_LLM_HYBRID_WEIGHT: %q is not a number", v)
+		}
+		c.Analyzer.LLM.HybridWeight = w
+	}
 	if v := os.Getenv("ROUTE42_OLLAMA_BASE_URL"); v != "" {
 		c.Ollama.BaseURL = v
 	}
@@ -216,15 +227,18 @@ func (c *Config) Validate() error {
 	if c.Server.Port < 1 || c.Server.Port > 65535 {
 		return fmt.Errorf("server.port: %d is not a valid TCP port (1-65535)", c.Server.Port)
 	}
-	if c.Analyzer.Mode != ModeHeuristic && c.Analyzer.Mode != ModeLLM {
-		return fmt.Errorf("analyzer.mode: %q is not supported (use %q or %q)",
-			c.Analyzer.Mode, ModeHeuristic, ModeLLM)
+	if c.Analyzer.Mode != ModeHeuristic && c.Analyzer.Mode != ModeLLM && c.Analyzer.Mode != ModeHybrid {
+		return fmt.Errorf("analyzer.mode: %q is not supported (use %q, %q, or %q)",
+			c.Analyzer.Mode, ModeHeuristic, ModeLLM, ModeHybrid)
 	}
 	if c.Analyzer.LLM.TimeoutMs <= 0 {
 		return fmt.Errorf("analyzer.llm.timeout_ms: must be positive, got %d", c.Analyzer.LLM.TimeoutMs)
 	}
-	if c.Analyzer.Mode == ModeLLM && c.Analyzer.LLM.Model == "" {
-		return errors.New("analyzer.llm.model: required when analyzer.mode is \"llm\"")
+	if (c.Analyzer.Mode == ModeLLM || c.Analyzer.Mode == ModeHybrid) && c.Analyzer.LLM.Model == "" {
+		return errors.New("analyzer.llm.model: required when analyzer.mode is \"llm\" or \"hybrid\"")
+	}
+	if c.Analyzer.LLM.HybridWeight < 0 || c.Analyzer.LLM.HybridWeight > 1 {
+		return fmt.Errorf("analyzer.llm.hybrid_weight: must be in [0,1], got %g", c.Analyzer.LLM.HybridWeight)
 	}
 	if c.Ollama.BaseURL == "" {
 		return errors.New("ollama.base_url: must not be empty")

@@ -22,6 +22,7 @@ const (
 const (
 	NameHeuristic = "heuristic"
 	NameLLM       = "llm"
+	NameHybrid    = "hybrid"
 )
 
 // AnalysisResult is the outcome of prompt analysis that drives routing.
