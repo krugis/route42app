@@ -20,10 +20,11 @@ server:
   api_token: ""             # optional bearer token for /api/* (empty = no auth)
 
 analyzer:
-  mode: heuristic           # heuristic | llm
+  mode: heuristic           # heuristic | llm | hybrid
   llm:
-    model: qwen2.5:0.5b     # any small Ollama model (required when mode: llm)
+    model: qwen2.5:0.5b     # any small Ollama model (required when mode: llm or hybrid)
     timeout_ms: 1500        # >0; falls back to heuristic on timeout
+    hybrid_weight: 0.5      # 0..1; weight for LLM score in hybrid mode (default 0.5)
 
 ollama:
   base_url: http://localhost:11434   # must not be empty
@@ -59,9 +60,10 @@ prefs:                      # initial routing preferences (first-run seed)
 
 | Field | Default | Validation | Notes |
 |---|---|---|---|
-| `mode` | `heuristic` | `heuristic` \| `llm` | Selects the prompt analyzer. See [`analyzer.md`](analyzer.md). |
-| `llm.model` | `qwen2.5:0.5b` | required when `mode: llm` | Any Ollama-served model. |
+| `mode` | `heuristic` | `heuristic` \| `llm` \| `hybrid` | Selects the prompt analyzer. See [`analyzer.md`](analyzer.md). |
+| `llm.model` | `qwen2.5:0.5b` | required when `mode: llm` or `mode: hybrid` | Any Ollama-served model. |
 | `llm.timeout_ms` | `1500` | >0 | On timeout the request falls back to the heuristic analyzer. |
+| `llm.hybrid_weight` | `0.5` | 0..1 | Weight given to LLM score in hybrid mode. `0` = pure heuristic, `1` = pure LLM. |
 
 ### `ollama`
 
@@ -117,6 +119,7 @@ All `ROUTE42_*` variables override file values. Provider keys use
 | `ROUTE42_ANALYZER_MODE` | `analyzer.mode` |
 | `ROUTE42_ANALYZER_LLM_MODEL` | `analyzer.llm.model` |
 | `ROUTE42_ANALYZER_LLM_TIMEOUT_MS` | `analyzer.llm.timeout_ms` |
+| `ROUTE42_ANALYZER_LLM_HYBRID_WEIGHT` | `analyzer.llm.hybrid_weight` |
 | `ROUTE42_OLLAMA_BASE_URL` | `ollama.base_url` |
 | `ROUTE42_DB_PATH` | `db.path` |
 | `ROUTE42_<PROVIDER>_API_KEY` | `providers.<provider>.api_key` |

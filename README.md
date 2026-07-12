@@ -35,9 +35,10 @@ Gateways like LiteLLM or Bifrost unify provider APIs and load-balance — but th
 | Analyzer | Cost | How it works |
 |---|---|---|
 | `heuristic` (default) | free, <1ms | Deterministic signal scoring: code blocks, requirement density, reasoning cues, question fan-out, context depth. Fully explainable — per-signal scores are returned with every decision. |
-| `llm` (optional) | free, ~50–200ms | Uses a small local model via Ollama (e.g. `qwen2.5:0.5b`) to classify category and complexity. Smarter on ambiguous prompts, still 100% local and private. Falls back to `heuristic` if Ollama is unavailable. |
+| `llm` (optional) | free, ~50–200ms | Uses a small local model via Ollama (e.g. `qwen2.5:0.5b`) to classify category and complexity with few-shot prompting. Smarter on ambiguous prompts, still 100% local and private. Falls back to `heuristic` if Ollama is unavailable. |
+| `hybrid` (optional) | free, <1ms + LLM latency | Blends heuristic signals with LLM judgment: heuristic always runs (cheap, never fails), LLM refines complexity via weighted blend and overrides category only when heuristic had low confidence. Combines explainability with LLM's strength on ambiguous prompts. |
 
-A third mode — analyzers trained on real routing outcomes — ships with [Route42 Pro](https://route42.app).
+A fourth mode — analyzers trained on real routing outcomes — ships with [Route42 Pro](https://route42.app).
 
 ### Providers & models
 - **Cloud providers:** OpenAI, Anthropic, Google Gemini, Mistral, Groq, DeepSeek, Alibaba, Moonshot, NVIDIA, OpenRouter.
@@ -146,10 +147,11 @@ Every response includes the selected model and the analyzer's signal breakdown, 
 
 ```yaml
 analyzer:
-  mode: heuristic          # heuristic | llm
+  mode: heuristic          # heuristic | llm | hybrid
   llm:
-    model: qwen2.5:0.5b    # any small Ollama model
+    model: qwen2.5:0.5b    # any small Ollama model (required for llm and hybrid)
     timeout_ms: 1500       # falls back to heuristic on timeout
+    hybrid_weight: 0.5     # 0..1, blend weight for hybrid mode (default 0.5)
 ```
 
 ## Integration

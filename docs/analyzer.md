@@ -19,7 +19,7 @@ type AnalysisResult struct {
     Complexity float64            // 0..1
     Category   string             // chat | code | math | analysis | general
     Signals    map[string]float64 // per-signal contributions
-    Analyzer   string             // "heuristic" | "llm"
+    Analyzer   string             // "heuristic" | "llm" | "hybrid"
 }
 
 type PromptAnalyzer interface {
@@ -32,14 +32,16 @@ type PromptAnalyzer interface {
 | Analyzer | Cost | How it works |
 |---|---|---|
 | `heuristic` (default) | free, <1ms | Deterministic signal scoring: code blocks, requirement density, reasoning cues, question fan-out, context depth. Fully explainable — per-signal scores are returned with every decision. |
-| `llm` (optional) | free, ~50–200ms | Uses a small local model via Ollama (e.g. `qwen2.5:0.5b`) to classify category and complexity. Smarter on ambiguous prompts, still 100% local and private. Falls back to `heuristic` if Ollama is unavailable. |
+| `llm` (optional) | free, ~50–200ms | Uses a small local model via Ollama (e.g. `qwen2.5:0.5b`) to classify category and complexity. Few-shot prompting with worked examples spreads scores across the full complexity range. Smarter on ambiguous prompts, still 100% local and private. Falls back to `heuristic` if Ollama is unavailable. |
+| `hybrid` (optional) | free, <1ms + LLM latency | Blends heuristic signals with LLM judgment: heuristic runs unconditionally (cheap, never fails), LLM refines complexity via weighted blend and overrides category only when heuristic had low confidence. Combines explainability of heuristic with LLM's strength on ambiguous prompts. |
 
 ```yaml
 analyzer:
-  mode: heuristic          # heuristic | llm
+  mode: heuristic          # heuristic | llm | hybrid
   llm:
-    model: qwen2.5:0.5b    # any small Ollama model
+    model: qwen2.5:0.5b    # any small Ollama model (required for llm and hybrid modes)
     timeout_ms: 1500       # falls back to heuristic on timeout
+    hybrid_weight: 0.5     # 0..1, weight given to LLM score in hybrid mode (default 0.5)
 ```
 
 You can inspect an analyzer's output without running the gateway:
@@ -112,18 +114,41 @@ dominates the score.
 Uses a small local model via Ollama. 100% local, $0, on-brand.
 
 - Default model: `qwen2.5:0.5b` (configurable; anything Ollama-served works).
-- Prompt (single-shot, JSON-forced):
-  ```
-  Classify this user request. Respond with ONLY JSON:
-  {"category":"chat|code|math|analysis|general","complexity":0.0-1.0}
-  complexity: 0=trivial one-liner, 0.5=typical task, 1=multi-constraint expert task.
-  Request: <last user message, truncated to 1500 chars>
-  ```
+- Prompt (few-shot, JSON-forced): 6 worked examples span all categories
+  and non-round complexity values (0.05, 0.12, 0.22, 0.38, 0.64, 0.93) to
+  calibrate the LLM's scoring across the full range and avoid the
+  round-number clustering problem of zero-shot prompts.
 - Guardrails: 1500ms timeout, strict JSON parse, clamp complexity to
   `[0,1]`, category whitelist. **Any failure → fall back to the
   heuristic analyzer** (routing must never be blocked by analysis errors).
 - Cache: LRU on `hash(last user message)` to avoid re-analyzing
   retries/regenerations.
+
+## Hybrid analyzer (optional)
+
+Combines the explainability of heuristic signals with LLM judgment on
+ambiguous prompts. The heuristic always runs first (cheap, never fails),
+and the LLM refines the result only when available.
+
+- **Complexity**: weighted blend `complexity = w * llm_score + (1-w) * heuristic_score`,
+  where `w` (default 0.5) is `analyzer.llm.hybrid_weight`.
+- **Category**: uses heuristic's category if it was confident (detected
+  anything other than `general`), otherwise uses LLM's category. This
+  preserves determinism for the common case and only defers to LLM on
+  genuinely ambiguous prompts.
+- **Fallback**: on any LLM error (timeout, parse, connection), returns
+  the heuristic result unchanged. Hybrid mode is a strict superset of
+  heuristic mode's reliability.
+- **Signals**: heuristic's per-signal breakdown is always present, with
+  two extra entries for auditability:
+  - `llm.complexity`: the raw LLM score before blending
+  - (LLM category not recorded in signals, but visible in logs if needed)
+- **Cost**: heuristic's <1ms plus LLM latency (50–200ms) when available.
+
+Hybrid mode directly fixes the two key weaknesses of pure LLM mode:
+- Round-number clustering (finding #3 in testing) → eliminated by blending
+  with heuristic's continuous scores
+- Loss of explainability (finding #4) → heuristic signals always present
 
 > **Route42 Pro** loads an ML-trained analyzer (`mode: ml`) when the
 > commercial model bundle is installed. It slots into the same interface,
