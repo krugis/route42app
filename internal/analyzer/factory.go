@@ -17,6 +17,11 @@ func New(cfg *config.Config) (PromptAnalyzer, error) {
 	case config.ModeLLM:
 		timeout := time.Duration(cfg.Analyzer.LLM.TimeoutMs) * time.Millisecond
 		return NewLLM(cfg.Ollama.BaseURL, cfg.Analyzer.LLM.Model, timeout, NewHeuristic()), nil
+	case config.ModeHybrid:
+		timeout := time.Duration(cfg.Analyzer.LLM.TimeoutMs) * time.Millisecond
+		h := NewHeuristic()
+		llm := NewLLM(cfg.Ollama.BaseURL, cfg.Analyzer.LLM.Model, timeout, h)
+		return NewHybrid(h, llm, cfg.Analyzer.LLM.HybridWeight), nil
 	default:
 		return nil, fmt.Errorf("analyzer mode %q is not supported", cfg.Analyzer.Mode)
 	}

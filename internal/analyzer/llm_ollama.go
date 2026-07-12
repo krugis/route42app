@@ -62,7 +62,7 @@ func (a *LLMAnalyzer) Analyze(ctx context.Context, messages []Message) (Analysis
 		return res, nil
 	}
 
-	res, err := a.classify(ctx, prompt)
+	res, err := a.Classify(ctx, prompt)
 	if err != nil {
 		a.logger.Debug("llm analyzer falling back to heuristic", "error", err)
 		// Use the caller's context: the classification context may
@@ -93,14 +93,36 @@ type classification struct {
 	Complexity *float64 `json:"complexity"`
 }
 
-func (a *LLMAnalyzer) classify(ctx context.Context, prompt string) (AnalysisResult, error) {
+// Classify classifies a prompt and returns the LLM's analysis. It is
+// exported for use by HybridAnalyzer; LLMAnalyzer.Analyze() should be
+// called for regular use (which handles caching and fallback).
+func (a *LLMAnalyzer) Classify(ctx context.Context, prompt string) (AnalysisResult, error) {
 	if len(prompt) > llmPromptMaxChars {
 		prompt = prompt[:llmPromptMaxChars]
 	}
 
-	instruction := fmt.Sprintf(`Classify this user request. Respond with ONLY JSON:
-{"category":"chat|code|math|analysis|general","complexity":0.0-1.0}
-complexity: 0=trivial one-liner, 0.5=typical task, 1=multi-constraint expert task.
+	instruction := fmt.Sprintf(`Classify user requests. Respond with ONLY JSON: {"category":"chat|code|math|analysis|general","complexity":0.0-1.0}
+
+Examples:
+Request: hey, what's up?
+{"category":"chat","complexity":0.05}
+
+Request: what's 15%%%% of 240?
+{"category":"math","complexity":0.12}
+
+Request: write a function that reverses a linked list in Go
+{"category":"code","complexity":0.38}
+
+Request: explain the difference between TCP and UDP
+{"category":"general","complexity":0.22}
+
+Request: compare the trade-offs of microservices vs a monolith for a 5-person startup, considering deployment complexity, team velocity, and cost
+{"category":"analysis","complexity":0.64}
+
+Request: design a distributed rate limiter across multiple regions handling clock skew, network partitions, and 50k req/sec, with a step-by-step justification of each design decision
+{"category":"analysis","complexity":0.93}
+
+Now classify this request:
 Request: %s`, prompt)
 
 	body, err := json.Marshal(ollamaGenerateRequest{
