@@ -61,22 +61,18 @@ jobs:
           (cd dist && sha256sum * > SHA256SUMS)
           ls -la dist
 
-      - name: Resolve release notes
-        id: notes
+      - name: Publish release
+        # Uses the gh CLI that ships with GitHub-hosted runners — no
+        # third-party action, authenticated by the built-in GITHUB_TOKEN.
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           notes="docs/releases/${GITHUB_REF_NAME}.md"
+          args=(--verify-tag --title "Route42 CE ${GITHUB_REF_NAME}")
           if [ -f "$notes" ]; then
-            echo "path=$notes" >> "$GITHUB_OUTPUT"
+            args+=(--notes-file "$notes")
           else
-            echo "path=" >> "$GITHUB_OUTPUT"
+            args+=(--generate-notes)
           fi
-
-      - name: Publish release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: "Route42 CE ${{ github.ref_name }}"
-          body_path: ${{ steps.notes.outputs.path }}
-          generate_release_notes: ${{ steps.notes.outputs.path == '' }}
-          files: dist/*
-          fail_on_unmatched_files: true
+          gh release create "${GITHUB_REF_NAME}" dist/* "${args[@]}"
