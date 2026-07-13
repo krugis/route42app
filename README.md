@@ -100,11 +100,34 @@ Point any OpenAI client at `http://localhost:4242` and it just works.
 
 `route42 serve` also hosts a small web console at [http://localhost:4242](http://localhost:4242) — the same look as the Route42 Pro desktop app, embedded in the binary (plain HTML/CSS/JS, no build step, no external assets):
 
+![Route42 web console — dashboard](docs/img/console-dashboard.png)
+
+### Watch a routing decision happen
+
+Type a prompt in the **Playground**: *Recommend* shows the decision Route42 would make — complexity score, detected category, and every candidate ranked by quality/speed/cost — and *Send* routes the prompt and streams the answer:
+
+![Prompt routing in the Playground: analyze, rank, stream](docs/img/console-routing.gif)
+
+Every page maps to the public API, so anything you see in the console you can also script:
+
 - **Dashboard** — gateway health, discovered local models, usage/spend/tokens over time, per-model and per-category breakdowns, copy-paste client snippets.
 - **Models** — the full routable catalog with quality/price metrics and availability, plus provider key management.
 - **Preferences** — routing priority, model filters, cost/latency limits, and fallback, with a live profile summary.
 - **Playground** — type a prompt, see the full routing decision (complexity, category, ranked candidates), and run it with streaming output.
 - **Interaction History** — the local request log: model, category, tokens, cost, latency.
+
+<details>
+<summary><strong>More screenshots</strong> — Models, Preferences, Interaction History</summary>
+
+![Models page — routable catalog and provider keys](docs/img/console-models.png)
+
+![Preferences page — routing priority, filters, limits](docs/img/console-preferences.png)
+
+![Interaction History page — the local request log](docs/img/console-history.png)
+
+![Playground page — routing decision and streamed response](docs/img/console-playground.png)
+
+</details>
 
 The console is optional. The gateway is fully operable headless via the CLI and HTTP API; set `server.ui: false` (or `ROUTE42_UI=false`) to disable it. If `server.api_token` is set, the console prompts for the token and sends it on its API calls.
 
@@ -145,7 +168,7 @@ $ route42 analyze "def fib(n): return n if n<2 else fib(n-1)+fib(n-2)"
 }
 ```
 
-<!-- asciinema/gif placeholder: replace with a recorded session of `analyze` over a few prompts -->
+For a visual version of the same pipeline, see the [Playground demo](#watch-a-routing-decision-happen) in the web console.
 
 ## How routing decisions are made
 
