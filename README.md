@@ -11,6 +11,10 @@ Your app ──▶ localhost:4242 ──▶ [ analyze → score → rank ] ─�
              (OpenAI-compatible)                          └──▶ Cloud API (when needed)
 ```
 
+![Route42 CE routing prompts from the terminal: a plain prompt stays on the local model at $0.00, a tool-calling prompt goes to the cloud](docs/img/cli-routing.gif)
+
+> One OpenAI-compatible endpoint. A plain prompt is answered by your local model for **$0.00**; a request that needs function calling is routed to a cloud model that supports it — and every response carries the routing decision in `x_route42`. (Recording uses a stub upstream so it runs without keys; the analyzer, ranking, and routing are the real gateway.)
+
 ## Why Route42 instead of a plain gateway?
 
 Gateways like LiteLLM or Bifrost unify provider APIs and load-balance — but they don't decide *which model deserves this prompt*. Route42 adds the decision layer:
