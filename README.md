@@ -58,14 +58,14 @@ A fourth mode — analyzers trained on real routing outcomes — ships with [Rou
 
 ```bash
 # Linux (amd64; see the release page for arm64 and macOS)
-curl -LO https://github.com/krugis/route42app/releases/download/v0.1.0/route42_0.1.0_linux_amd64.tar.gz
-tar -xzf route42_0.1.0_linux_amd64.tar.gz
+curl -LO https://github.com/krugis/route42app/releases/download/v0.2.0/route42_0.2.0_linux_amd64.tar.gz
+tar -xzf route42_0.2.0_linux_amd64.tar.gz
 sudo mv route42 /usr/local/bin/
 ```
 
-On Windows, download the `.zip`, unpack, and put `route42.exe` somewhere on your `PATH`. Verify downloads against the release's `SHA256SUMS`.
+On Windows, download the `.zip`, unpack, and put `route42.exe` somewhere on your `PATH`. Verify downloads against the release's `SHA256SUMS`. The web console is built into the binary — there's nothing extra to install.
 
-**Or install with Go 1.22+:**
+**Or install with Go 1.25+:**
 
 ```bash
 go install github.com/krugis/route42app/cmd/route42@latest
@@ -95,6 +95,47 @@ curl localhost:4242/api/chat/completions \
 ```
 
 Point any OpenAI client at `http://localhost:4242` and it just works.
+
+## Two ways to run it
+
+`route42 serve` is the whole product — the routing gateway, the CLI, and the web console are one binary. You choose how much of it you use.
+
+### With the web console (default)
+
+```bash
+route42 serve
+```
+
+Then open **http://localhost:4242** in a browser. You get the gateway *and* a point-and-click console for keys, preferences, usage, and a routing playground — plus the OpenAI-compatible API on the same port. Nothing else to install; the console is embedded in the binary. This is the default, so no flags are needed. Jump to [Web console](#web-console) for a tour.
+
+### Headless — CLI and API only (no browser)
+
+Prefer a pure gateway with no UI (servers, containers, CI)? Turn the console off:
+
+```bash
+route42 serve                 # then, either:
+ROUTE42_UI=false route42 serve # env var — disables the console for this run
+```
+
+Or set it permanently in `route42.yaml`:
+
+```yaml
+server:
+  ui: false
+```
+
+With the console off, `route42 serve` still exposes the full OpenAI-compatible API, and everything the console does is available from the terminal:
+
+```bash
+route42 keys add openai sk-...            # manage provider keys
+route42 prefs set priority=cheap          # configure routing
+route42 analyze "explain regex backrefs"  # inspect a routing decision
+curl localhost:4242/api/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{"messages":[{"role":"user","content":"hi"}]}'   # route a prompt
+```
+
+Both modes are the same gateway — the `ui` flag only controls whether `/` serves the console. The [CLI](#cli) and [API reference](#api-reference) below cover the headless path in full.
 
 ## Web console
 
