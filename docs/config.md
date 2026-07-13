@@ -18,6 +18,7 @@ run creates the database and works Ollama-only with no keys).
 server:
   port: 4242                # 1..65535
   api_token: ""             # optional bearer token for /api/* (empty = no auth)
+  ui: true                  # serve the embedded web console at /
 
 analyzer:
   mode: heuristic           # heuristic | llm | hybrid
@@ -54,7 +55,8 @@ prefs:                      # initial routing preferences (first-run seed)
 | Field | Default | Validation | Notes |
 |---|---|---|---|
 | `port` | `4242` | 1–65535 | TCP port the gateway listens on. |
-| `api_token` | `""` | — | When set, `/api/*` and `/v1/*` require `Authorization: Bearer <token>`. `/health` is always public. Empty (default) = no auth, for local single-user use. |
+| `api_token` | `""` | — | When set, `/api/*` and `/v1/*` require `Authorization: Bearer <token>`. `/health` and the web console assets are always public (the console asks for the token and sends it on its API calls). Empty (default) = no auth, for local single-user use. |
+| `ui` | `true` | — | Serves the embedded web console at `/`. Set `false` for a headless gateway; the CLI and HTTP API are unaffected either way. |
 
 ### `analyzer`
 
@@ -116,6 +118,7 @@ All `ROUTE42_*` variables override file values. Provider keys use
 |---|---|
 | `ROUTE42_PORT` | `server.port` |
 | `ROUTE42_API_TOKEN` | `server.api_token` |
+| `ROUTE42_UI` | `server.ui` |
 | `ROUTE42_ANALYZER_MODE` | `analyzer.mode` |
 | `ROUTE42_ANALYZER_LLM_MODEL` | `analyzer.llm.model` |
 | `ROUTE42_ANALYZER_LLM_TIMEOUT_MS` | `analyzer.llm.timeout_ms` |

@@ -184,14 +184,16 @@ func (s *Server) Handler() http.Handler {
 }
 
 // withAuth applies the optional static-token auth to /api and /v1 routes
-// when server.api_token is set. /health is always public.
+// when server.api_token is set. /health and the static web console assets
+// stay public — the console holds no data of its own and calls the guarded
+// /api routes with the token the user enters.
 func (s *Server) withAuth(h http.Handler) http.Handler {
 	token := s.cfg.Server.APIToken
 	if token == "" {
 		return h
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, "/health") {
+		if !strings.HasPrefix(r.URL.Path, "/api/") && !strings.HasPrefix(r.URL.Path, "/v1/") {
 			h.ServeHTTP(w, r)
 			return
 		}
