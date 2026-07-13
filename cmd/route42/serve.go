@@ -38,6 +38,9 @@ func runServe(args []string) error {
 	defer stop()
 
 	env.logger.Info("route42 starting", "version", version, "port", env.cfg.Server.Port, "analyzer", env.cfg.Analyzer.Mode)
+	if env.cfg.Server.UI {
+		env.logger.Info("web console enabled", "url", fmt.Sprintf("http://localhost:%d", env.cfg.Server.Port))
+	}
 	if err := srv.Run(ctx); err != nil {
 		return fmt.Errorf("serve: %w", err)
 	}

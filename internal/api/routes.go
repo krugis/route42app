@@ -1,6 +1,10 @@
 package api
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/krugis/route42app/internal/webui"
+)
 
 // registerRoutes wires every Route42 endpoint onto the ServeMux. /v1/*
 // mirror /api/* so any OpenAI SDK pointed at the gateway works unchanged.
@@ -22,8 +26,9 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	// Routing recommendation (no execution).
 	mux.HandleFunc("POST /api/recommend", s.handleRecommend)
 
-	// Usage stats.
+	// Usage stats and the interaction log.
 	mux.HandleFunc("GET /api/stats", s.handleStats)
+	mux.HandleFunc("GET /api/interactions", s.handleInteractions)
 
 	// Models list (catalog + local discovery + availability).
 	mux.HandleFunc("GET /api/models", s.handleModels)
@@ -31,4 +36,11 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 
 	// Health (always public).
 	mux.HandleFunc("GET /health", s.handleHealth)
+
+	// Embedded web console (optional; server.ui). Registered on the GET /
+	// catch-all so every API route above still wins. The gateway is fully
+	// usable without it via the CLI and the HTTP API.
+	if s.cfg.Server.UI {
+		mux.Handle("GET /", webui.Handler())
+	}
 }

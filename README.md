@@ -49,7 +49,8 @@ A fourth mode — analyzers trained on real routing outcomes — ships with [Rou
 - **Bring your own keys** — per-provider API keys stored encrypted in a local SQLite database.
 - **No telemetry** — nothing leaves your machine except the LLM calls you route.
 - **Interaction log & stats** — every request records the chosen model, rationale, cost, and latency; browse usage and spend locally.
-- **Single binary** — Go backend, SQLite storage, no external services.
+- **Web console** — a built-in dashboard at `http://localhost:4242` for usage, models, keys, preferences, and a routing playground. Optional: everything works headless via the CLI and API (`server.ui: false` turns it off).
+- **Single binary** — Go backend, SQLite storage, embedded UI, no external services.
 
 ## Install
 
@@ -82,7 +83,7 @@ go build -o route42 ./cmd/route42
 
 ```bash
 # 1. Run
-route42 serve              # starts on localhost:4242
+route42 serve              # gateway + web console on localhost:4242
 
 # 2. Add a provider key (or none — Ollama-only works fine)
 curl -X POST localhost:4242/api/keys -d '{"provider":"openai","api_key":"sk-..."}'
@@ -94,6 +95,18 @@ curl localhost:4242/api/chat/completions \
 ```
 
 Point any OpenAI client at `http://localhost:4242` and it just works.
+
+## Web console
+
+`route42 serve` also hosts a small web console at [http://localhost:4242](http://localhost:4242) — the same look as the Route42 Pro desktop app, embedded in the binary (plain HTML/CSS/JS, no build step, no external assets):
+
+- **Dashboard** — gateway health, discovered local models, usage/spend/tokens over time, per-model and per-category breakdowns, copy-paste client snippets.
+- **Models** — the full routable catalog with quality/price metrics and availability, plus provider key management.
+- **Preferences** — routing priority, model filters, cost/latency limits, and fallback, with a live profile summary.
+- **Playground** — type a prompt, see the full routing decision (complexity, category, ranked candidates), and run it with streaming output.
+- **Interaction History** — the local request log: model, category, tokens, cost, latency.
+
+The console is optional. The gateway is fully operable headless via the CLI and HTTP API; set `server.ui: false` (or `ROUTE42_UI=false`) to disable it. If `server.api_token` is set, the console prompts for the token and sends it on its API calls.
 
 ## CLI
 
@@ -234,10 +247,12 @@ Use base URL `http://localhost:4242/v1`, any non-empty API key (unless you set `
 | `PUT` | `/api/prefs` | Replace preferences (validated). |
 | `POST` | `/api/recommend` | Ranked candidates + explanation, no execution (`{"messages":[...]}`). |
 | `GET` | `/api/stats?days=N` | Usage aggregates (0 = all time). |
+| `GET` | `/api/interactions?limit=N` | Recent interaction log entries, newest first (default 50, max 500). |
 | `GET` | `/api/models` *(alias `/v1/models`)* | Catalog + local discovery + availability (OpenAI list shape). |
 | `GET` | `/health` | Liveness/readiness (always public). |
+| `GET` | `/` | Embedded web console (disable with `server.ui: false`). |
 
-Optional auth: set `server.api_token` in config and send `Authorization: Bearer <token>` on `/api/*` routes (`/health` stays public).
+Optional auth: set `server.api_token` in config and send `Authorization: Bearer <token>` on `/api/*` routes (`/health` and the console assets stay public).
 
 ## Documentation
 

@@ -29,6 +29,9 @@ type Server struct {
 	// APIToken, when set, requires "Authorization: Bearer <token>" on all
 	// /api endpoints. Empty (default) means no auth: local single-user use.
 	APIToken string `yaml:"api_token"`
+	// UI serves the embedded web console at "/" (default true). The gateway
+	// works identically without it via the CLI and the HTTP API.
+	UI bool `yaml:"ui"`
 }
 
 // Analyzer selects and configures the prompt analyzer.
@@ -75,15 +78,17 @@ type Provider struct {
 // After that, preferences live in the database (editable via /api/prefs).
 type Prefs struct {
 	// Priority is one of balanced, fast, cheap, accurate.
-	Priority           string   `yaml:"priority"`
-	MaxCostCents       float64  `yaml:"max_cost_cents"`
-	LatencyToleranceMs int      `yaml:"latency_tolerance_ms"`
-	OnlyFree           bool     `yaml:"only_free"`
-	OnlyLocal          bool     `yaml:"only_local"`
-	MaxResponseTokens  int      `yaml:"max_response_tokens"`
-	DefaultModel       string   `yaml:"default_model"`
-	FallbackDepth      int      `yaml:"fallback_depth"`
-	DisallowedModels   []string `yaml:"disallowed_models"`
+	// The json tags define the /api/prefs and `prefs set --json` wire
+	// format; they intentionally mirror the yaml names.
+	Priority           string   `yaml:"priority" json:"priority"`
+	MaxCostCents       float64  `yaml:"max_cost_cents" json:"max_cost_cents"`
+	LatencyToleranceMs int      `yaml:"latency_tolerance_ms" json:"latency_tolerance_ms"`
+	OnlyFree           bool     `yaml:"only_free" json:"only_free"`
+	OnlyLocal          bool     `yaml:"only_local" json:"only_local"`
+	MaxResponseTokens  int      `yaml:"max_response_tokens" json:"max_response_tokens"`
+	DefaultModel       string   `yaml:"default_model" json:"default_model"`
+	FallbackDepth      int      `yaml:"fallback_depth" json:"fallback_depth"`
+	DisallowedModels   []string `yaml:"disallowed_models" json:"disallowed_models"`
 }
 
 // Analyzer modes.
@@ -100,7 +105,7 @@ var validPriorities = []string{"balanced", "fast", "cheap", "accurate"}
 // with only a local Ollama installation.
 func Default() *Config {
 	return &Config{
-		Server: Server{Port: 4242},
+		Server: Server{Port: 4242, UI: true},
 		Analyzer: Analyzer{
 			Mode: ModeHeuristic,
 			LLM:  AnalyzerLLM{Model: "qwen2.5:0.5b", TimeoutMs: 1500, HybridWeight: 0.5},
@@ -170,6 +175,13 @@ func (c *Config) applyEnv() error {
 	}
 	if v := os.Getenv("ROUTE42_API_TOKEN"); v != "" {
 		c.Server.APIToken = v
+	}
+	if v := os.Getenv("ROUTE42_UI"); v != "" {
+		on, err := strconv.ParseBool(v)
+		if err != nil {
+			return fmt.Errorf("ROUTE42_UI: %q is not a boolean", v)
+		}
+		c.Server.UI = on
 	}
 	if v := os.Getenv("ROUTE42_ANALYZER_MODE"); v != "" {
 		c.Analyzer.Mode = v
