@@ -1,0 +1,82 @@
+name: release
+
+# Cut a release by pushing a version tag:
+#
+#   git tag v0.2.0 && git push origin v0.2.0
+#
+# This builds the single static binary for every supported platform,
+# packages each the same way as v0.1.0 (route42_<version>_<os>_<arch>),
+# writes SHA256SUMS, and publishes a GitHub release with the assets.
+# The web console is compiled into every binary via go:embed — there is
+# nothing extra to ship.
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: build & publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.x"
+          cache: true
+
+      - name: Build & package
+        run: |
+          set -euo pipefail
+          REF="${GITHUB_REF_NAME}"          # e.g. v0.2.0
+          VERSION="${REF#v}"                # e.g. 0.2.0
+          mkdir -p build dist
+          platforms=(
+            "linux amd64 tar.gz"
+            "linux arm64 tar.gz"
+            "darwin amd64 tar.gz"
+            "darwin arm64 tar.gz"
+            "windows amd64 zip"
+          )
+          for p in "${platforms[@]}"; do
+            set -- $p; os=$1; arch=$2; fmt=$3
+            bin="route42"; [ "$os" = "windows" ] && bin="route42.exe"
+            echo "==> $os/$arch"
+            CGO_ENABLED=0 GOOS="$os" GOARCH="$arch" go build \
+              -trimpath -ldflags "-s -w -X main.version=${REF}" \
+              -o "build/$bin" ./cmd/route42
+            name="route42_${VERSION}_${os}_${arch}"
+            if [ "$fmt" = "zip" ]; then
+              (cd build && zip -q "../dist/${name}.zip" "$bin")
+            else
+              tar -C build -czf "dist/${name}.tar.gz" "$bin"
+            fi
+            rm -f "build/$bin"
+          done
+          (cd dist && sha256sum * > SHA256SUMS)
+          ls -la dist
+
+      - name: Resolve release notes
+        id: notes
+        run: |
+          set -euo pipefail
+          notes="docs/releases/${GITHUB_REF_NAME}.md"
+          if [ -f "$notes" ]; then
+            echo "path=$notes" >> "$GITHUB_OUTPUT"
+          else
+            echo "path=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Route42 CE ${{ github.ref_name }}"
+          body_path: ${{ steps.notes.outputs.path }}
+          generate_release_notes: ${{ steps.notes.outputs.path == '' }}
+          files: dist/*
+          fail_on_unmatched_files: true
