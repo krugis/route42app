@@ -64,15 +64,27 @@ jobs:
       - name: Publish release
         # Uses the gh CLI that ships with GitHub-hosted runners — no
         # third-party action, authenticated by the built-in GITHUB_TOKEN.
+        # Idempotent: if the tag already has a release (e.g. it was created
+        # from the GitHub UI, which makes the tag AND the release before this
+        # workflow runs), update that release and (re)upload the assets
+        # instead of failing. Otherwise create the release from scratch.
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           notes="docs/releases/${GITHUB_REF_NAME}.md"
-          args=(--verify-tag --title "Route42 CE ${GITHUB_REF_NAME}")
-          if [ -f "$notes" ]; then
-            args+=(--notes-file "$notes")
+          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            echo "release ${GITHUB_REF_NAME} already exists — updating notes and uploading assets"
+            gh release edit "${GITHUB_REF_NAME}" --title "Route42 CE ${GITHUB_REF_NAME}" \
+              $([ -f "$notes" ] && echo --notes-file "$notes")
+            gh release upload "${GITHUB_REF_NAME}" dist/* --clobber
           else
-            args+=(--generate-notes)
+            echo "creating release ${GITHUB_REF_NAME}"
+            args=(--verify-tag --title "Route42 CE ${GITHUB_REF_NAME}")
+            if [ -f "$notes" ]; then
+              args+=(--notes-file "$notes")
+            else
+              args+=(--generate-notes)
+            fi
+            gh release create "${GITHUB_REF_NAME}" dist/* "${args[@]}"
           fi
-          gh release create "${GITHUB_REF_NAME}" dist/* "${args[@]}"
